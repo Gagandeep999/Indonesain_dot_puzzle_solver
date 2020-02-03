@@ -1,8 +1,9 @@
 class Board:
 
-    def __init__(self, size):
+    def __init__(self, size, parent):
         self.size = size
         self.current_state = [0 for i in range(self.size*self.size)]
+        self.parent = parent
 
     def print_board(self):
         pos = 0
@@ -24,18 +25,8 @@ class Board:
         else:
             self.current_state[pos] = 1
 
-    def is_same_to(self, board):
-        for i in enumerate(board.current_state):
+    def is_same_as(self, board):
+        for i, _ in enumerate(board.current_state):
             if self.current_state[i] != board.current_state[i]:
                 return False
-            return True
-
-
-class BoardBuilder(object):
-
-    def __init__(self, size):
-        self.size = size
-        self.current_state = None
-
-    def build(self):
-        return Board(self.size, self.current_state)
+        return True
