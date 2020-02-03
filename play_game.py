@@ -1,16 +1,29 @@
 import copy
 
 
-class Play_Game():
+class Play_Game:
 
-    def __init__(self, board, max_d, max_node):
+    def __init__(self, board, max_d, max_node, game_number):
         self.board = board
+        self.game_number = str(game_number)
         self.stack = [self.board]
         self.parentMap = {}
         self.visits = []
+        self.depth = {}
         self.max_d = int(max_d)
         self.max_node = int(max_node)
-        self.depth = {}
+        self.solution_file = open("./sample_1/" + self.game_number + "_dfs_solution.txt", "w")
+        self.search_file = open("./sample_1/" + self.game_number + "_dfs_search.txt", "w+")
+
+    '''
+        Helper method to convert the list indices to matrix representation.
+        '''
+
+    def lin_to_matrix(self, i, size):
+        row = int(i / size) + 65
+        col = int(i % size)
+        return chr(row) + str(col)
+
     '''
     Takes a position and the board and depending on the position flips surrounding position and returns new board
     '''
@@ -37,7 +50,15 @@ class Play_Game():
             board_1.flip(i + size)
         if str(board_1.current_state) not in self.parentMap:
             self.parentMap[str(board_1.current_state)] = str(parent.current_state)
+            # here is where you will input the f(n), g(n) or h(n)
+            f = 0
+            g = 0
+            h = 0
+            self.search_file.write(self.lin_to_matrix(i, board_1.size) + "  "+ str(f) + "  " + str(g) + "  " + str(h)+"  " + str(board_1.current_state) + "\n")
         return board_1
+
+    def get_move(self, move):
+        return
 
     '''
     Helper method to check if the current state of the board is the final state
@@ -56,7 +77,7 @@ class Play_Game():
     '''
 
     def generate_children(self, board):
-        for i in range(board.size*board.size-1, -1, -1):
+        for i in range(board.size * board.size - 1, -1, -1):
             kid = self.flip_board(i, board)
             if str(kid.current_state) not in self.visits:
                 self.stack.append(kid)
@@ -74,9 +95,11 @@ class Play_Game():
     def play_game(self):
         self.parentMap[str(self.board.current_state)] = "root"
         self.depth[str(self.board.current_state)] = 0
+        self.search_file.write("0  0  0  0  "+str(self.board.current_state)+"\n")
         while self.stack.__len__() != 0:
             new_board = self.stack.pop()
             if self.is_final_state(new_board):
+                self.search_file.close()
                 self.generate_report()
                 return
             # if we still can go deeper into the tree
@@ -90,16 +113,34 @@ class Play_Game():
                 else:
                     # generate_failed_report()
                     self.stack.clear()
-        print("no solution exists")
+        self.solution_file.write("no solution found")
         return
 
-
     def generate_report(self):
-        print('success')
-        state = str([0 for i in range(self.board.size * self.board.size)])
-        # print(parentMap)
-        print(state)
-        while self.parentMap.get(state) != "root":
-            print(self.parentMap.get(state))
-            state = self.parentMap.get(state)
-        # method for printing all the appropriate shit
+
+        self.search_file = open("./sample_1/" + self.game_number + "_dfs_search.txt", "r")
+        count = 1
+        elements = []
+        while True:
+            if count == 1:
+                current = str([0 for i in range(self.board.size * self.board.size)])
+                count -= 1
+            else:
+                current = self.parentMap.get(str(current))
+            while current != "root":
+                line = self.search_file.readline()
+                move, f, g, h, board_info = line.split("  ")
+                board_info = board_info.rstrip()
+                if board_info == current:
+                    elements.append(move + "  " + current+"\n")
+                    self.search_file.seek(0)
+                    break
+                if move == "0" and current == board_info:
+                    loop = False
+                    self.search_file.close()
+                    break
+            if current == "root":
+                break
+        for line in elements:
+            self.solution_file.write(line)
+        self.solution_file.close()
