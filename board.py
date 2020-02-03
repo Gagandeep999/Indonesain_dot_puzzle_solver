@@ -6,12 +6,13 @@ class Board:
         self.parent = parent
 
     def print_board(self):
+        print(self.parent, end=" ")
         pos = 0
         for i in range(self.size):
             for j in range(self.size):
                 print(self.current_state[pos], end=" ")
                 pos += 1
-            print()
+            # print()
 
     def initialize_board(self, initial):
         for i, letter in enumerate(initial):

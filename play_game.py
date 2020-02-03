@@ -84,7 +84,7 @@ class PlayGame:
     def lin_to_matrix(self, i, size):
         row = int(i / size) + 97
         col = int(i % size)
-        return chr(row)+col
+        return chr(row)+str(col)
 
     '''
     This method is used to generate children of a given state of the board.
@@ -111,6 +111,7 @@ class PlayGame:
             board = self.stack.pop()
             self.closed_list.append(board)
             board.print_board()
+            print()
             #if we have reached the max_d then do not generate more child. Instead pop from the stack and check
             # if (self.currentdepth == max_d)
             #   then current depth - 1
@@ -121,11 +122,12 @@ class PlayGame:
             #   add to stack
             if self.is_final_state(board):
                 print('success')
-                # return
+
+                return
             else:
                 self.generate_children(board)
                 self.add_to_stack()
                 self.children_list = []
                 # return
-        print('fail')
+        return 'fail'
 
