@@ -2,6 +2,7 @@ import copy
 
 stack = []
 visited = []
+parentMap = {}
 
 
 def main():
@@ -16,29 +17,50 @@ def main():
     max_search_path = parameters[2]
     board_info = parameters[3]
     board = populate_board(size, board_info)
-    print("current board")
-    for line in board:
-        print(line)
+    parentMap[str(board)] = "root"
+    # print("current board")
+    # for line in board:
+    #     print(line)
     line = f.readline()
-    final_state = [[0] * int(size)] * int(size)
-    kids = get_kids(board, int(size))
-    for x in kids:
-        print("\n possibility")
-        for line in x:
-            print(line)
+    final_state = [[-1] * int(size)] * int(size)
+    #kids = get_kids(board, int(size))
+    # for x in kids:
+    #     print("\n possibility")
+    #     for line in x:
+    #         print(line)
     # result_DFS(board, final_state, int(size));
+    done = dfs(board, int(size), visited, final_state)
+    state = str(final_state)
+    # print(parentMap)
+    if done:
+        print(state)
+        while parentMap.get(state) != "root":
+            print(parentMap.get(state))
+            state = parentMap.get(state)
 
 
-# graph = {}
-# visited = dfs(board, 'A', [])
-# print(visited)
+#   for child in children:
+#         stack.push(child[0])
+#         parentMap[child] = parent #this line was added
+# Later on, when you found your target, you can get the path from the source to the target (pseudo code):
+#
+# curr = target
+# while (curr != None):
+#   print curr
+#   curr = parentMap[curr]
 
-def dfs(graph, node, visited):
-    if node not in visited:
-        visited.append(node)
-        for n in graph[node]:
-            dfs(graph, n, visited)
-    return visited
+def dfs(board, size, visits, final):
+    stack.append(board)
+    while stack:
+        current = stack.pop()
+        kids = get_kids(current, size)
+        visits.append(current)
+        for kid in kids:
+            if kid == final:
+                return True
+            if kid not in visited:
+                stack.append(kid)
+    return False
 
 
 def populate_board(size, board_info):
@@ -54,11 +76,12 @@ def populate_board(size, board_info):
     return data
 
 
+# return list of kids
 def get_kids(current, SIZE):
     size = SIZE - 1
     kids = []
-    for i in range(SIZE):
-        for j in range(SIZE):
+    for i in range(size, -1, -1):
+        for j in range(size, -1, -1):
             kid = copy.deepcopy(current)
             if i == 0 and j == 0:
                 kid[i][j] *= -1
@@ -103,16 +126,18 @@ def get_kids(current, SIZE):
                 kid[i - 1][j] *= -1
                 kid[i + 1][j] *= -1
             kids.append(kid)
+            if str(kid) not in parentMap:
+                parentMap[str(kid)] = str(current)
+
     return kids
-
-
-def result_DFS(board, final_state, size):
-    stack.append(board)
-    while stack:
-        current = stack.pop()
-        kids = get_kids(current, size)
-    return
 
 
 if __name__ == "__main__":
     main()
+
+# def dfs(board, size, visits):
+#     if node not in visited:
+#         visited.append(node)
+#         for n in graph[node]:
+#             dfs(graph, n, visited)
+#     return visited
