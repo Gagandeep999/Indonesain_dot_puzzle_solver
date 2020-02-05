@@ -1,12 +1,14 @@
 class Board:
 
-    def __init__(self, size, parent):
+    def __init__(self, size, my_name, parent_name, level):
         self.size = size
         self.current_state = [0 for i in range(self.size*self.size)]
-        self.parent = parent
+        self.my_name = my_name
+        self.parent_name = parent_name
+        self.level = level
 
     def print_board(self):
-        print(self.parent, end=" ")
+        print(self.my_name, end=" ")
         pos = 0
         for i in range(self.size):
             for j in range(self.size):
