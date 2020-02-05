@@ -1,33 +1,24 @@
+
 from board import Board
 from play_game import PlayGame
 
 
-'''
-Starting point of the solver
-'''
-
-
 def main():
-    # input_file_path = input("Enter input file path: ")
-
-    # b1 = Board(3, '0')
-    # b2 = Board(3, '1')
-    # b1.initialize_board('010111010')
-    # b2.initialize_board('010111010')
-    # b1.print_board()
-    # b2.print_board()
-    # print(b1.is_same_as(b2))
-
-    input_file_path = 'sample/test.txt'
+    """
+    Starting point of the application
+    :return:
+    """
+    input_file_path = input("Enter file path:")
+    # input_file_path = 'sample/test.txt'
     args = open(input_file_path)
-    for lines in args:
+    for i, lines in enumerate(args):
         n, max_d, _, initial = lines.split(" ")
         initial = initial.rstrip()
+        # initialize the root node with name as 0; parent as None and level as 0.
         board = Board(size=int(n), my_name='0', parent_name=None, level=0)
         board.initialize_board(initial)
-        # board.print_board
-        game = PlayGame(int(max_d))
-        game.play_game(board)
+        game = PlayGame(max_d=int(max_d))
+        game.play_game(board=board)
 
 
 if __name__ == '__main__':
