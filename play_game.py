@@ -102,6 +102,17 @@ class PlayGame:
         if board.my_name == '0':
             self.solution_stack.push(board)
 
+    def reports(self):
+        """
+        Method to generate the output files
+        :return:
+        """
+        while not self.solution_stack.is_empty():
+            board = self.solution_stack.pop()
+            if not isinstance(board, Board):
+                board = Board(board)
+            print(board.my_name, board.current_state, file=self.solution_file)
+
     def DFS(self, board):
         """
         Implements the DFS algorithm
@@ -139,10 +150,3 @@ class PlayGame:
 
         if self.solution_found is False:
             print('no solution', file=self.solution_file)
-
-    def reports(self):
-        while not self.solution_stack.is_empty():
-            board = self.solution_stack.pop()
-            if not isinstance(board, Board):
-                board = Board(board)
-            print(board.my_name, board.current_state, file=self.solution_file)
