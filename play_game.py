@@ -8,14 +8,17 @@ class PlayGame:
     The main class where all the action takes place. 
     """
 
-    def __init__(self, max_d):
+    def __init__(self, max_d, solution, search):
         """
         Declares an open_stack; a closed_stack to keep track of non-visited an visited nodes.
         :param max_d: the max depth allowed for the tree
         """
-        self.open_stack = MyStack()
         self.max_d = max_d
+        self.solution_file = solution
+        self.search_file = search
+        self.open_stack = MyStack()
         self.closed_stack = MyStack()
+        self.solution_stack = MyStack()
         self.solution_found = False
 
     def flip_board(self, i, board):
@@ -93,14 +96,15 @@ class PlayGame:
             if not isinstance(board_parent, Board):
                 board_parent = Board(board_parent)
             if board.parent_name == board_parent.my_name and board_parent.level == board.level-1:
-                board_parent.print_board()
-                print()
+                self.solution_stack.push(board)
                 self.backtrack(board_parent)
                 return
+        if board.my_name == '0':
+            self.solution_stack.push(board)
 
-    def play_game(self, board):
+    def DFS(self, board):
         """
-        Implemets the DFS algorithm
+        Implements the DFS algorithm
         :param board:
         :return:
         """
@@ -109,26 +113,36 @@ class PlayGame:
             board = self.open_stack.pop()
 
             while board.level == self.max_d and self.solution_found is False:
+                print(board.my_name, board.current_state, file=self.search_file)
                 if self.is_final_state(board):
-                    print('final state found beak loop')
-                    board.print_board()
-                    print()
                     self.backtrack(board)
                     self.solution_found = True
+                    self.reports()
+
+                    break
+                if self.open_stack.is_empty():
                     break
                 board = self.open_stack.pop()
+                if board.level != self.max_d:
+                    self.closed_stack.pop()
 
             if self.is_final_state(board) and self.solution_found is False:
-                print('final state found')
-                board.print_board()
-                print()
                 self.backtrack(board)
                 self.solution_found = True
+                self.reports()
 
             if board.level < self.max_d and self.solution_found is False:
+                print(board.my_name, board.current_state, file=self.search_file)
                 self.generate_children(board)
 
             self.closed_stack.push(board)
 
         if self.solution_found is False:
-            print('no solution')
+            print('no solution', file=self.solution_file)
+
+    def reports(self):
+        while not self.solution_stack.is_empty():
+            board = self.solution_stack.pop()
+            if not isinstance(board, Board):
+                board = Board(board)
+            print(board.my_name, board.current_state, file=self.solution_file)
