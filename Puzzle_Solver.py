@@ -19,10 +19,10 @@ def main():
         board = Board(int(size))
         board.initialize_board(initial)
         # board.print_board
-        start = time.perf_counter()
+        time_start = time.perf_counter()
         game = Play_Game(board, max_d, max_nodes, count)
         game.play_game()
-        print ( time.perf_counter() - start)
+        print ( time.perf_counter() - time_start)
         count += 1
 
 
