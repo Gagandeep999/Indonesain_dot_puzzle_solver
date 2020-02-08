@@ -17,7 +17,8 @@ class PlayGame:
         self.solution_file = solution
         self.search_file = search
         self.open_stack = MyStack()
-        self.closed_stack = MyStack()
+        self.open_list = []
+        self.closed_list = []
         self.solution_stack = MyStack()
         self.solution_found = False
 
@@ -54,8 +55,9 @@ class PlayGame:
         :param board: the board to be checked
         :return: true if it is true state
         """
-        for i, letter in enumerate(board.current_state):
-            if board.current_state[i] == 1:
+        list_current_state = list(board.current_state)
+        for colour in list_current_state:
+            if colour == '1':
                 return False
         return True
 
@@ -79,10 +81,16 @@ class PlayGame:
         level = board.level + 1
         for i, _ in enumerate(board.current_state):
             prev_board = copy.deepcopy(board)
+            if not isinstance(prev_board, Board):
+                prev_board = Board(prev_board)
+            new_board_config = self.flip_board(i, prev_board).current_state
+
             new_board = Board(size=prev_board.size, my_name=self.lin_to_matrix(i, prev_board.size),
-                              parent_name=prev_board.my_name, level=level)
-            new_board.initialize_board(self.flip_board(i, prev_board).current_state)
-            self.open_stack.push(new_board)
+                              board=board, level=level)
+            new_board.initialize_board(new_board_config)
+            if not (new_board.current_state in self.open_list):
+                self.open_stack.push(new_board)
+                self.open_list.append(new_board_config)
 
     def backtrack(self, board):
         """
@@ -90,17 +98,11 @@ class PlayGame:
         :param board: solution board whose parent is to be traced
         :return: prints to the terminal parents until the root node
         """
-
         while board.my_name != '0':
-            board_parent = self.closed_stack.pop()
-            if not isinstance(board_parent, Board):
-                board_parent = Board(board_parent)
-            if board.parent_name == board_parent.my_name and board_parent.level == board.level-1:
-                self.solution_stack.push(board)
-                self.backtrack(board_parent)
-                return
-        if board.my_name == '0':
-            self.solution_stack.push(board)
+            self.backtrack(board.parent)
+            break
+        self.solution_stack.push(board)
+        self.solution_found = True
 
     def reports(self):
         """
@@ -120,33 +122,31 @@ class PlayGame:
         :return:
         """
         self.open_stack.push(board)
+        self.open_list.append(board.current_state)
         while self.open_stack.size() != 0 and self.solution_found is False:
             board = self.open_stack.pop()
+            # self.closed_list.append(board.current_state)
+
+            if self.is_final_state(board) and self.solution_found is False:
+                self.backtrack(board)
+                self.reports()
+                break
 
             while board.level == self.max_d and self.solution_found is False:
                 print(board.my_name, board.current_state, file=self.search_file)
                 if self.is_final_state(board):
                     self.backtrack(board)
-                    self.solution_found = True
                     self.reports()
-
                     break
+                # else:
+                #     self.closed_list.append(board)
                 if self.open_stack.is_empty():
                     break
                 board = self.open_stack.pop()
-                if board.level != self.max_d:
-                    self.closed_stack.pop()
-
-            if self.is_final_state(board) and self.solution_found is False:
-                self.backtrack(board)
-                self.solution_found = True
-                self.reports()
 
             if board.level < self.max_d and self.solution_found is False:
                 print(board.my_name, board.current_state, file=self.search_file)
                 self.generate_children(board)
-
-            self.closed_stack.push(board)
 
         if self.solution_found is False:
             print('no solution', file=self.solution_file)
