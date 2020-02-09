@@ -88,6 +88,7 @@ class PlayGame:
             new_board = Board(size=prev_board.size, my_name=self.lin_to_matrix(i, prev_board.size),
                               board=board, level=level)
             new_board.initialize_board(new_board_config)
+            # add child to stack and open_list only if it has not been discovered
             if not (new_board.current_state in self.open_list):
                 self.open_stack.push(new_board)
                 self.open_list.append(new_board_config)
@@ -98,10 +99,9 @@ class PlayGame:
         :param board: solution board whose parent is to be traced
         :return: prints to the terminal parents until the root node
         """
-        while board.my_name != '0':
-            self.backtrack(board.parent)
-            break
         self.solution_stack.push(board)
+        if board.my_name != '0':
+            self.backtrack(board.parent)
         self.solution_found = True
 
     def reports(self):
@@ -125,7 +125,6 @@ class PlayGame:
         self.open_list.append(board.current_state)
         while self.open_stack.size() != 0 and self.solution_found is False:
             board = self.open_stack.pop()
-            # self.closed_list.append(board.current_state)
 
             if self.is_final_state(board) and self.solution_found is False:
                 self.backtrack(board)
@@ -138,8 +137,6 @@ class PlayGame:
                     self.backtrack(board)
                     self.reports()
                     break
-                # else:
-                #     self.closed_list.append(board)
                 if self.open_stack.is_empty():
                     break
                 board = self.open_stack.pop()
