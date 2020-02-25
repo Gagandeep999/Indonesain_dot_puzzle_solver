@@ -1,7 +1,7 @@
 import copy
 
 
-class Play_Game:
+class play_game:
 
     def __init__(self, board, max_d, max_node, game_number):
         self.board = board
@@ -15,20 +15,24 @@ class Play_Game:
         self.solution_file = open("./sample/" + self.game_number + "_dfs_solution.txt", "w")
         self.search_file = open("./sample/" + self.game_number + "_dfs_search.txt", "w+")
 
-    '''
-        Helper method to convert the list indices to matrix representation.
+    def _lin_to_matrix(self, i, size):
         '''
-
-    def lin_to_matrix(self, i, size):
+        Helper method to convert the list indices to matrix representation.
+        :param i: the index on the board
+        :param size: size of the board
+        :return: the 2D representation of the linear number
+        '''
         row = int(i / size) + 65
         col = int(i % size)
         return chr(row) + str(col)
 
-    '''
-    Takes a position and the board and depending on the position flips surrounding position and returns new board
-    '''
-
-    def flip_board(self, i, board):
+    def _flip_board(self, i, board):
+        '''
+        Takes a position and the board and depending on the position flips surrounding position and returns new board
+        :param i: position on the board
+        :param board: object on which game is being played
+        :return: the board object with flipped neighbouring indexes
+        '''
         size = board.size
         parent = copy.deepcopy(board)
         board_1 = copy.deepcopy(board)
@@ -54,53 +58,51 @@ class Play_Game:
             f = 0
             g = 0
             h = 0
-            self.search_file.write(self.lin_to_matrix(i, board_1.size) + "  "+ str(f) + "  " + str(g) + "  " + str(h)+"  " + str(board_1.current_state) + "\n")
+            self.search_file.write(self._lin_to_matrix(i, board_1.size) + "  "+ str(f) + "  " + str(g) + "  " + str(h)+"  " + str(board_1.current_state) + "\n")
         return board_1
 
-    def get_move(self, move):
-        return
-
-    '''
-    Helper method to check if the current state of the board is the final state
-    '''
-
-    def is_final_state(self, board):
+    def _is_final_state(self, board):
+        '''
+        Checks if the current board in final state or not
+        :param board: object on which game is being played
+        :return: true if the board is in final state otherwise false
+        '''
         for i, letter in enumerate(board.current_state):
             if board.current_state[i] == 1:
                 return False
         return True
 
-    '''
-    This method is used to generate children of a given state of the board.
-    It adds a new board configuration to the stack. 
-    It takes a board as a parameter and creates a new board for every cell and adds the new board to the stack.
-    '''
-
-    def generate_children(self, board):
+    def _generate_children(self, board):
+        '''
+        Method used to generate the children of the current board. Adds a new board with different config to the stack.
+        :param board: the parent board whose children we want to generate
+        :return: nothing
+        '''
         for i in range(board.size * board.size - 1, -1, -1):
-            kid = self.flip_board(i, board)
+            kid = self._flip_board(i, board)
             if str(kid.current_state) not in self.visits:
                 self.stack.append(kid)
                 # gets the parents depth and adds to that
                 self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
         pass
 
-    '''
-    This method is where all the action takes place.
-    It start with checking if the stack is non empty; pop out the current state and check if it is final
-    if final then return success; otherwise generate children and put them in stack; add the current_depth by 1 
-    to keep track of the depth of tree.
-    '''
-
-    def play_game(self):
+    def _play_game(self):
+        '''
+        The heart of the application. Keeps looping until the stack is empty. Pops a board from the stack and checks
+        for final state, if not final, then checks if maximum depth reached or not, then checks if maximum number of
+        nodes reached or not; finally if boarn is not in stack then _generate_children() method is called which adds the
+        children to the stack.
+        If a child is found _generate_report() method is called otherwise "no solution found" is written to the file.
+        :return: nothing
+        '''
         self.parentMap[str(self.board.current_state)] = "root"
         self.depth[str(self.board.current_state)] = 0
         self.search_file.write("0  0  0  0  "+str(self.board.current_state)+"\n")
         while self.stack.__len__() != 0:
             new_board = self.stack.pop()
-            if self.is_final_state(new_board):
+            if self._is_final_state(new_board):
                 self.search_file.close()
-                self.generate_report()
+                self._generate_report()
                 return
             # if we still can go deeper into the tree
             if self.max_d > self.depth.get(str(new_board.current_state)):
@@ -109,15 +111,18 @@ class Play_Game:
                     # node hasnt been visited yet
                     if str(new_board.current_state) not in self.stack:
                         self.visits.append(str(new_board.current_state))
-                        self.generate_children(new_board)
+                        self._generate_children(new_board)
                 else:
                     # generate_failed_report()
                     self.stack.clear()
         self.solution_file.write("no solution found")
         return
 
-    def generate_report(self):
-
+    def _generate_report(self):
+        '''
+        Once the solution is found this method is called which genrates the report.
+        :return: nothing
+        '''
         self.search_file = open("./sample/" + self.game_number + "_dfs_search.txt", "r")
         count = 1
         elements = []
