@@ -9,8 +9,8 @@ Starting point of the solver
 
 
 def main():
-    # input_file_path = input("Enter input file path: ")
-    input_file_path = 'sample_1/test_1.txt'
+    input_file_path = input("Enter input file path: ")
+    # input_file_path = 'sample_1/test_1.txt'
     args = open(input_file_path)
     count = 0
     for lines in args:

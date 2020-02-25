@@ -4,13 +4,13 @@ class Board:
         self.size = size
         self.current_state = [0 for i in range(self.size*self.size)]
 
-    def print_board(self):
-        pos = 0
-        for i in range(self.size):
-            for j in range(self.size):
-                print(self.current_state[pos], end=" ")
-                pos += 1
-            print()
+    # def print_board(self):
+    #     pos = 0
+    #     for i in range(self.size):
+    #         for j in range(self.size):
+    #             # print(self.current_state[pos], end=" ")
+    #             pos += 1
+    #         # print()
 
     def initialize_board(self, initial):
         for i, letter in enumerate(initial):
@@ -29,13 +29,3 @@ class Board:
             if self.current_state[i] != board.current_state[i]:
                 return False
             return True
-
-
-class BoardBuilder(object):
-
-    def __init__(self, size):
-        self.size = size
-        self.current_state = None
-
-    def build(self):
-        return Board(self.size, self.current_state)

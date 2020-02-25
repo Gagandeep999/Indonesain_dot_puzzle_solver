@@ -12,8 +12,8 @@ class Play_Game:
         self.depth = {}
         self.max_d = int(max_d)
         self.max_node = int(max_node)
-        self.solution_file = open("./sample_1/" + self.game_number + "_dfs_solution.txt", "w")
-        self.search_file = open("./sample_1/" + self.game_number + "_dfs_search.txt", "w+")
+        self.solution_file = open("./sample/" + self.game_number + "_dfs_solution.txt", "w")
+        self.search_file = open("./sample/" + self.game_number + "_dfs_search.txt", "w+")
 
     '''
         Helper method to convert the list indices to matrix representation.
@@ -118,7 +118,7 @@ class Play_Game:
 
     def generate_report(self):
 
-        self.search_file = open("./sample_1/" + self.game_number + "_dfs_search.txt", "r")
+        self.search_file = open("./sample/" + self.game_number + "_dfs_search.txt", "r")
         count = 1
         elements = []
         while True:
