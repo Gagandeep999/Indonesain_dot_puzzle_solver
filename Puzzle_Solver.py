@@ -9,8 +9,8 @@ Starting point of the solver
 
 
 def main():
-    input_file_path = input("Enter input file path: ")
-    # input_file_path = 'sample_1/test_1.txt'
+    # input_file_path = input("Enter input file path: ")
+    input_file_path = 'sample_1/test_1.txt'
     args = open(input_file_path)
     count = 0
     for lines in args:
@@ -20,9 +20,13 @@ def main():
         board.initialize_board(initial)
         # board.print_board
         time_start = time.perf_counter()
-        game = Play_Game(board, max_d, max_nodes, count)
+        game = Play_Game(board, max_d, max_nodes, count, 'dfs')
         game.play_game()
-        print ( time.perf_counter() - time_start)
+        print("time for dfs : "+str(time.perf_counter() - time_start))
+        time_start = time.perf_counter()
+        game = Play_Game(board, max_d, max_nodes, count, 'bfs')
+        game.play_game()
+        print("time for bfs : "+str(time.perf_counter() - time_start))
         count += 1
 
 
