@@ -18,7 +18,6 @@ def main():
         initial = initial.rstrip()
         board = Board(int(size))
         board.initialize_board(initial)
-        # board.print_board
         time_start = time.perf_counter()
         game = Play_Game(board, max_d, max_nodes, count, 'dfs')
         game.play_game()
