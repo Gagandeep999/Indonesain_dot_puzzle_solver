@@ -26,6 +26,10 @@ def main():
         game = Play_Game(board, max_d, max_nodes, count, 'bfs')
         game.play_game()
         print("time for bfs : "+str(time.perf_counter() - time_start))
+        time_start = time.perf_counter()
+        game = Play_Game(board, max_d, max_nodes, count, 'a*')
+        game.play_game()
+        print("time for a* : " + str(time.perf_counter() - time_start))
         count += 1
 
 

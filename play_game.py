@@ -31,7 +31,6 @@ class Play_Game:
 
     def flip_board(self, i, board):
         size = board.size
-        parent = copy.deepcopy(board)
         board_1 = copy.deepcopy(board)
         if i % size == 0:
             board_1.flip(i - size)
@@ -49,13 +48,7 @@ class Play_Game:
             board_1.flip(i)
             board_1.flip(i + 1)
             board_1.flip(i + size)
-        if str(board_1.current_state) not in self.parentMap:
-            self.parentMap[str(board_1.current_state)] = str(parent.current_state)
-            # here is where you will input the f(n), g(n) or h(n)
-            f = 0
-            g = 0
-            h = 0
-            self.search_file.write(self.lin_to_matrix(i, board_1.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(board_1.current_state) + "\n")
+
         return board_1
 
     '''
@@ -77,25 +70,105 @@ class Play_Game:
     def generate_children_dfs(self, board):
         for i in range(board.size * board.size - 1, -1, -1):
             kid = self.flip_board(i, board)
-            if str(kid.current_state) not in self.visits:
-                self.stack.append(kid)
-                # gets the parents depth and adds to that
+            # assuming we get the best leading 0s image.
+
+            #  check if this entry already exists and must be modified
+            if str(kid.current_state) in self.depth:
+                # if we find that this board has already been visited but that this board now has a faster way/
+                # less depth then replace old value of parent
+                if self.depth[str(kid.current_state)] > self.depth[str(board.current_state)] + 1:  # old value vs new one
+                    self.parentMap[str(kid.current_state)] = str(board.current_state)
+                    self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                    self.stack.append(kid)
+                    # here is where you will input the f(n), g(n) or h(n)
+                    g = 0
+                    h = 0
+                    f = 0
+                    self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
+                # else:
+                # do nothing cause faster way to get to this node.
+            else:
+                self.parentMap[str(kid.current_state)] = str(board.current_state)
                 self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                self.stack.append(kid)
+                # here is where you will input the f(n), g(n) or h(n)
+                g = 0
+                h = 0
+                f = 0
+                self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
         pass
 
     def generate_children_bfs(self, board):
-        # create a temporary variable to store the "unsorted" children
-        temp = []
         for i in range(board.size * board.size - 1, -1, -1):
-            # add he generated children to the temp
-            temp.append(self.flip_board(i, board))
-        # here we rearrange the temp to have the correct order of the desired/favored children
-        temp.sort(key=self.return_state_as_integer, reverse=True)
-        for kid in temp:
-            if str(kid.current_state) not in self.visits:
-                self.stack.append(kid)
-                # gets the parents depth and adds to that
+            kid = self.flip_board(i, board)
+            # assuming we get the best leading 0s image.
+
+            #  check if this entry already exists and must be modified
+            if str(kid.current_state) in self.depth:
+                # if we find that this board has already been visited but that this board now has a faster way/
+                # less depth then replace old value of parent
+                if self.depth[str(kid.current_state)] > self.depth[str(board.current_state)] + 1:  # old value vs new one
+                    self.parentMap[str(kid.current_state)] = str(board.current_state)
+                    self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                    self.stack.append(kid)
+                    # here is where you will input the f(n), g(n) or h(n)
+                    g = 0
+                    h = self.return_state_as_integer(kid)
+                    f = int(g) + int(h)
+                    self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
+                # else:
+                # do nothing cause faster way to get to this node.
+            else:
+                self.parentMap[str(kid.current_state)] = str(board.current_state)
                 self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                self.stack.append(kid)
+                # here is where you will input the f(n), g(n) or h(n)
+                g = 0
+                h = self.return_state_as_integer(kid)
+                f = int(g) + int(h)
+                self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
+        pass
+
+    def generate_children_a(self, board):
+        for i in range(board.size * board.size - 1, -1, -1):
+            kid = self.flip_board(i, board)
+            # extra for performance would be assuming we get the best leading 0s image. future improvement
+
+            #  check if this entry already exists and must be modified
+            if str(kid.current_state) in self.depth:
+                # if we find that this board has already been visited but that this board now has a faster way/
+                # less depth then replace old value of parent
+                if self.depth[str(kid.current_state)] > self.depth[str(board.current_state)] + 1:  # old value vs new one
+                    self.parentMap[str(kid.current_state)] = str(board.current_state)
+                    self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                    #
+                    kid.fn = self.return_state_as_integer(kid) + self.add_depth_cost(kid)
+                    #
+                    self.stack.append(kid)
+                    g = self.depth[str(kid.current_state)]
+                    h = self.add_depth_cost(kid)
+                    f = int(g) + int(h)
+                    self.search_file.write("\n"+self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
+                # else:
+                # do nothing cause faster way to get to this node.
+            else:
+                self.parentMap[str(kid.current_state)] = str(board.current_state)
+                self.depth[str(kid.current_state)] = self.depth.get((self.parentMap.get(str(kid.current_state)))) + 1
+                self.stack.append(kid)
+                #
+                kid.fn = self.return_state_as_integer(kid) + self.add_depth_cost(kid)
+                #
+                self.stack.append(kid)
+                g = self.add_depth_cost(kid)
+                h = self.return_state_as_integer(kid)
+                f = int(g) + int(h)
+                self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
+
         pass
 
     #  get the current board as an Integer which we use to sort the array
@@ -113,7 +186,7 @@ class Play_Game:
     def play_game(self):
         self.parentMap[str(self.board.current_state)] = "root"
         self.depth[str(self.board.current_state)] = 0
-        self.search_file.write("0  0  0  0  " + str(self.board.current_state) + "\n")
+        self.search_file.write("0  0  0  0  " + str(self.board.current_state))
         while self.stack.__len__() != 0:
             new_board = self.stack.pop()
             if self.is_final_state(new_board):
@@ -125,12 +198,18 @@ class Play_Game:
                 # have we reached the max node count.
                 if (self.max_node > self.visits.__len__() and self.max_d > 0) or self.type == 'dfs':
                     # node hasnt been visited yet
-                    if str(new_board.current_state) not in self.stack:
-                        self.visits.append(str(new_board.current_state))
-                        if self.type == 'dfs':
-                            self.generate_children_dfs(new_board)
-                        if self.type == 'bfs':
-                            self.generate_children_bfs(new_board)
+                    # if str(new_board.current_state) not in self.stack:
+                    self.visits.append(str(new_board.current_state))
+                    if self.type == 'dfs':
+                        self.generate_children_dfs(new_board)
+                    if self.type == 'bfs':
+                        self.generate_children_bfs(new_board)
+                        # extra step to fix the stack so it becomes BFS
+                        self.stack.sort(key=self.return_state_as_integer, reverse=True)
+                    if self.type == "a*":
+                        self.generate_children_a(new_board)
+                        # sort based on f(n)
+                        self.stack.sort(key=self.return_fn, reverse=True)
                 else:
                     # generate_failed_report()
                     self.stack.clear()
@@ -138,7 +217,6 @@ class Play_Game:
         return
 
     def generate_report(self):
-
         self.search_file = open("./sample_1/" + self.game_number + "_"+self.type+"_search.txt", "r")
         count = 1
         elements = []
@@ -165,3 +243,12 @@ class Play_Game:
         for line in elements:
             self.solution_file.write(line)
         self.solution_file.close()
+
+    def add_depth_cost(self, board):
+        depth = [0 for i in range(board.size * board.size)]
+        depth[0] = self.depth[str(board.current_state)]
+        number = int("".join(map(str, depth)))
+        return number
+
+    def return_fn(self, board):
+        return board.fn
