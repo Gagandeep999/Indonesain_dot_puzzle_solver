@@ -1,7 +1,7 @@
 import copy
 
 
-class Play_Game:
+class PlayGame:
 
     def __init__(self, board, max_d, max_node, game_number, type):
         self.type = type
@@ -16,20 +16,24 @@ class Play_Game:
         self.solution_file = open("./sample_1/" + self.game_number + "_"+type+"_solution.txt", "w")
         self.search_file = open("./sample_1/" + self.game_number + "_"+type+"_search.txt", "w+")
 
-    '''
-        Helper method to convert the list indices to matrix representation.
-        '''
-
     def lin_to_matrix(self, i, size):
+        """
+        Helper method to convert the list indices to matrix representation.
+        :param i: index to switch
+        :param size: size of the board
+        :return: the converted index to 2D
+        """
         row = int(i / size) + 65
         col = int(i % size)
         return chr(row) + str(col)
 
-    '''
-    Takes a position and the board and depending on the position flips surrounding position and returns new board
-    '''
-
     def flip_board(self, i, board):
+        """
+        Takes a position and the board and depending on the position flips surrounding position and returns new board
+        :param i: board position
+        :param board:
+        :return: board with changed configurations
+        """
         size = board.size
         board_1 = copy.deepcopy(board)
         if i % size == 0:
@@ -51,23 +55,41 @@ class Play_Game:
 
         return board_1
 
-    '''
-    Helper method to check if the current state of the board is the final state
-    '''
-
     def is_final_state(self, board):
+        """
+        Helper method to check if the current state of the board is the final state
+        :param board:
+        :return: true if the board is in fianl state, otherwise false
+        """
         for i, letter in enumerate(board.current_state):
             if board.current_state[i] == 1:
                 return False
         return True
 
-    '''
-    This method is used to generate children of a given state of the board.
-    It adds a new board configuration to the stack. 
-    It takes a board as a parameter and creates a new board for every cell and adds the new board to the stack.
-    '''
+    def return_fn(self, board):
+        """
+        :param board:
+        :return: the fn value of the board
+        """
+        return board.fn
+
+    def return_state_as_integer(self, board):
+        """
+        Get the current board as an Integer which we use to sort the array
+        :param board:
+        :return:
+        """
+        number = int("".join(map(str, board.current_state)))
+        return number
 
     def generate_children_dfs(self, board):
+        """
+        This method is used to generate children of a given state of the board for the dfs algorithm.
+        It adds a new board configuration to the stack.
+        It takes a board as a parameter and creates a new board for every cell and adds the new board to the stack.
+        :param board:
+        :return:
+        """
         for i in range(board.size * board.size - 1, -1, -1):
             kid = self.flip_board(i, board)
             # assuming we get the best leading 0s image.
@@ -97,10 +119,16 @@ class Play_Game:
                 h = 0
                 f = 0
                 self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
-
         pass
 
     def generate_children_bfs(self, board):
+        """
+        This method is used to generate children of a given state of the board for the bfs algorithm.
+        It adds a new board configuration to the stack.
+        It takes a board as a parameter and creates a new board for every cell and adds the new board to the stack.
+        :param board:
+        :return:
+        """
         for i in range(board.size * board.size - 1, -1, -1):
             kid = self.flip_board(i, board)
             # assuming we get the best leading 0s image.
@@ -134,6 +162,13 @@ class Play_Game:
         pass
 
     def generate_children_a(self, board):
+        """
+        This method is used to generate children of a given state of the board for the a-star algorithm.
+        It adds a new board configuration to the stack.
+        It takes a board as a parameter and creates a new board for every cell and adds the new board to the stack.
+        :param board:
+        :return:
+        """
         for i in range(board.size * board.size - 1, -1, -1):
             kid = self.flip_board(i, board)
             # extra for performance would be assuming we get the best leading 0s image. future improvement
@@ -168,22 +203,16 @@ class Play_Game:
                 h = self.return_state_as_integer(kid)
                 f = int(g) + int(h)
                 self.search_file.write("\n" + self.lin_to_matrix(i, board.size) + "  " + str(f) + "  " + str(g) + "  " + str(h) + "  " + str(kid.current_state))
-
         pass
 
-    #  get the current board as an Integer which we use to sort the array
-    def return_state_as_integer(self, board):
-        number = int("".join(map(str, board.current_state)))
-        return number
-
-    '''
-    This method is where all the action takes place.
-    It start with checking if the stack is non empty; pop out the current state and check if it is final
-    if final then return success; otherwise generate children and put them in stack; add the current_depth by 1 
-    to keep track of the depth of tree.
-    '''
-
     def play_game(self):
+        """
+        This method is where all the action takes place.
+        It start with checking if the stack is non empty; pop out the current state and check if it is final
+        if final then return success; otherwise generate children and put them in stack; add the current_depth by 1
+        to keep track of the depth of tree.
+        :return:
+        """
         self.parentMap[str(self.board.current_state)] = "root"
         self.depth[str(self.board.current_state)] = 0
         self.search_file.write("0  0  0  0  " + str(self.board.current_state))
@@ -217,12 +246,16 @@ class Play_Game:
         return
 
     def generate_report(self):
+        """
+        Once a solution is found, this method is called and output files are generated.
+        :return:
+        """
         self.search_file = open("./sample_1/" + self.game_number + "_"+self.type+"_search.txt", "r")
         count = 1
         elements = []
         while True:
             if count == 1:
-                current = str([0 for i in range(self.board.size * self.board.size)])
+                current = str([0 for _ in range(self.board.size * self.board.size)])
                 count -= 1
             else:
                 current = self.parentMap.get(str(current))
@@ -247,11 +280,13 @@ class Play_Game:
         self.solution_file.close()
 
     def add_depth_cost(self, board):
-        if board.size%2==0:
+        """
+        Depending on the board size it gets the cost
+        :param board:
+        :return: cost value associated with the board
+        """
+        if board.size % 2 == 0:
             number = int(self.depth[str(board.current_state)] * 10 ^ int(((board.size * board.size) / 2)))
         else:
             number = int(self.depth[str(board.current_state)] * 10 ^ int(((board.size * board.size - 1) / 2)))
         return number
-
-    def return_fn(self, board):
-        return board.fn
