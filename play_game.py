@@ -225,7 +225,7 @@ class PlayGame:
             # if we still can go deeper into the tree
             if self.max_d > self.depth.get(str(new_board.current_state)):
                 # have we reached the max node count.
-                if (self.max_node > self.visits.__len__() and self.max_d > 0) or self.type == 'dfs':
+                if (self.max_node > self.stack.__len__() and self.max_d > 0) or self.type == 'dfs':
                     # node hasnt been visited yet
                     # if str(new_board.current_state) not in self.stack:
                     self.visits.append(str(new_board.current_state))
