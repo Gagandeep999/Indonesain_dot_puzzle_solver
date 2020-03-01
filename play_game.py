@@ -240,14 +240,17 @@ class Play_Game:
                     break
             if current == "root":
                 break
-        for line in elements:
-            self.solution_file.write(line)
+        # for line in elements:
+        #     self.solution_file.write(line)
+        for i in range(elements.__len__()):
+            self.solution_file.write(elements[elements.__len__()-i-1])
         self.solution_file.close()
 
     def add_depth_cost(self, board):
-        depth = [0 for i in range(board.size * board.size)]
-        depth[0] = self.depth[str(board.current_state)]
-        number = int("".join(map(str, depth)))
+        if board.size%2==0:
+            number = int(self.depth[str(board.current_state)] * 10 ^ int(((board.size * board.size) / 2)))
+        else:
+            number = int(self.depth[str(board.current_state)] * 10 ^ int(((board.size * board.size - 1) / 2)))
         return number
 
     def return_fn(self, board):
